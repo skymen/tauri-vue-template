@@ -1,0 +1,26 @@
+{
+  "name": "tauri-template",
+  "productName": "Tauri Template",
+  "version": "0.0.0",
+  "identifier": "com.tauri.dev",
+  "description": "A Tauri App",
+  "author": "you",
+  "license": "",
+  "github": {
+    "owner": "",
+    "repo": ""
+  },
+  "window": {
+    "title": "Tauri Template",
+    "width": 800,
+    "height": 600
+  },
+  "updater": {
+    "active": false,
+    "pubkey": ""
+  },
+  "icons": {
+    "svg": "assets/icon.svg",
+    "png": "assets/icon.png"
+  }
+}

@@ -1,0 +1,5 @@
+Place your source icon files here:
+  - icon.svg  (preferred — will be rendered to PNG at all sizes)
+  - icon.png  (fallback — should be at least 1024x1024)
+
+Run `npm run icons` to generate all Tauri icon assets.

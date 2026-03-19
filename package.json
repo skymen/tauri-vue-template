@@ -3,11 +3,17 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "description": "A Tauri App",
+  "author": "you",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
+    "dev": "node scripts/config.js && vite",
+    "build": "node scripts/config.js && vite build",
     "preview": "vite preview",
-    "tauri": "tauri"
+    "tauri": "tauri",
+    "init": "node scripts/init.js",
+    "config": "node scripts/config.js",
+    "icons": "node scripts/generate-icons.js",
+    "publish": "node scripts/publish.js"
   },
   "dependencies": {
     "@tauri-apps/api": "^1.4.0",
@@ -18,6 +24,7 @@
   "devDependencies": {
     "@tauri-apps/cli": "^1.4.0",
     "@vitejs/plugin-vue": "^4.2.3",
+    "sharp": "^0.33.2",
     "vite": "^4.4.4"
   }
 }

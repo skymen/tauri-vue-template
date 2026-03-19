@@ -1,52 +1,69 @@
-name: "publish"
+name: publish
+
 on:
   push:
-    branches:
-      - main
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  publishtauri:
+  publish-tauri:
     permissions:
       contents: write
     strategy:
       fail-fast: false
       matrix:
-        platform: [macos-latest, ubuntu-20.04, windows-latest]
-
+        include:
+          - platform: macos-latest
+          - platform: ubuntu-22.04
+          - platform: windows-latest
     runs-on: ${{ matrix.platform }}
-
     outputs:
       releaseId: ${{ steps.tauri.outputs.releaseHtmlUrl }}
     steps:
-      - uses: actions/checkout@v3
-      - name: setup node
-        uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: 16
-      - name: install Rust stable
+          node-version: 20
+          cache: npm
+
+      - name: Install Rust stable
         uses: dtolnay/rust-toolchain@stable
-      - name: Export variable (unix)
-        if: matrix.platform != 'windows-latest'
-        run: echo "TAURI_PRIVATE_KEY=${{ secrets.TAURI_PRIVATE_KEY }}" >> $GITHUB_ENV
-      - name: Export variable (windows)
-        if: matrix.platform == 'windows-latest'
-        run: echo "TAURI_PRIVATE_KEY=${{ secrets.TAURI_PRIVATE_KEY }}" >> $GITHUB_ENV
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
+
+      - name: Export TAURI_PRIVATE_KEY
         shell: bash
-      - name: install dependencies (ubuntu only)
-        if: matrix.platform == 'ubuntu-20.04'
+        run: echo "TAURI_PRIVATE_KEY=${{ secrets.TAURI_PRIVATE_KEY }}" >> $GITHUB_ENV
+
+      - name: Install system dependencies (Linux)
+        if: matrix.platform == 'ubuntu-22.04'
         run: |
           sudo apt-get update
           sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf
-      - name: install frontend dependencies
-        run: yarn install # change this to npm or pnpm depending on which one you use
-      - uses: tauri-apps/tauri-action@v0
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Apply template config
+        run: node scripts/config.js
+
+      - name: Build and release
+        uses: tauri-apps/tauri-action@v0
         id: tauri
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tagName: v__VERSION__ # the action automatically replaces __VERSION__ with the app version
-          releaseName: "v__VERSION__"
-          releaseBody: "See the assets to download this version and install."
+          tagName: ${{ github.ref_name }}
+          releaseName: ${{ github.ref_name }}
+          releaseBody: "See the assets to download and install."
           releaseDraft: false
           prerelease: false
           includeUpdaterJson: true
@@ -56,33 +73,43 @@ jobs:
 
   update-json:
     runs-on: ubuntu-latest
-    needs: publishtauri
+    needs: publish-tauri
+    permissions:
+      contents: write
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
+
       - name: Configure Git
         run: |
-          git config user.name "GitHub Action"
-          git config user.email "action@github.com"
-      - name: Create or checkout branch
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Checkout update branch
         run: |
-          git checkout "update" || git checkout --orphan "update"
-      - name: Remove all files
+          git checkout update || git checkout --orphan update
+
+      - name: Clear branch
         run: |
-          git rm -rf .
-      - name: Fetch JSON file
+          git rm -rf . || true
+
+      - name: Fetch latest.json from release
         env:
-          RELEASE_ID: ${{needs.publishtauri.outputs.releaseId}}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_URL: ${{ needs.publish-tauri.outputs.releaseId }}
         run: |
-          echo "$RELEASE_ID"
-          RELEASE_TAG=$(basename $RELEASE_ID)
-          echo "$RELEASE_TAG"
-          RELEASE_URL="https://github.com/skymen/construct-crawler/releases/download/$RELEASE_TAG/latest.json"
-          echo "$RELEASE_URL"
-          curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" -H "Accept: application/vnd.github.v3.raw" -o latest.json -L "$RELEASE_URL"
+          RELEASE_TAG=$(basename "$RELEASE_URL")
+          echo "Release tag: $RELEASE_TAG"
+          curl -fSL \
+            -H "Authorization: token $GITHUB_TOKEN" \
+            -H "Accept: application/octet-stream" \
+            -o latest.json \
+            "https://github.com/${{ github.repository }}/releases/download/$RELEASE_TAG/latest.json"
+          echo "Contents:"
           cat latest.json
-      - name: Commit and push changes
+
+      - name: Commit and push
         run: |
           git add latest.json
-          git commit -m "Update latest.json"
+          git commit -m "Update latest.json for ${{ github.ref_name }}"
           git push -u origin update --force

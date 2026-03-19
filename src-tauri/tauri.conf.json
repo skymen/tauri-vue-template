@@ -7,7 +7,7 @@
     "withGlobalTauri": false
   },
   "package": {
-    "productName": "tauri-template",
+    "productName": "Tauri Template",
     "version": "0.0.0"
   },
   "tauri": {
@@ -38,13 +38,13 @@
         "fullscreen": false,
         "resizable": true,
         "center": true,
-        "title": "tauri-template",
+        "title": "Tauri Template",
         "width": 800,
         "height": 600
       }
     ],
     "updater": {
-      "active": true,
+      "active": false,
       "endpoints": [
         "https://raw.githubusercontent.com/<USERNAME>/<REPO>/update/latest.json"
       ],
