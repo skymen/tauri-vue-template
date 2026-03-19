@@ -32,7 +32,7 @@ sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev 
 ## Quick Start
 
 ```sh
-npx create skymen-app my-app
+npm create skymen-app my-app
 ```
 
 This single command clones the template, installs dependencies, and walks you through an interactive setup that:
@@ -175,7 +175,7 @@ The GitHub Actions workflow then builds for macOS, Linux, and Windows, creates a
 
 ## Manual Setup Steps
 
-Most setup is handled by `npx create skymen-app`, but a few things still need to be done by hand:
+Most setup is handled by `npm create skymen-app`, but a few things still need to be done by hand:
 
 ### 1. Add the updater private key to GitHub (if using auto-updater)
 
