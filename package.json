@@ -10,7 +10,6 @@
     "build": "node scripts/config.js && vite build",
     "preview": "vite preview",
     "tauri": "tauri",
-    "init": "node scripts/init.js",
     "config": "node scripts/config.js",
     "icons": "node scripts/generate-icons.js",
     "publish": "node scripts/publish.js"

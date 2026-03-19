@@ -14,12 +14,12 @@ A reusable template for building cross-platform desktop apps with Tauri v2 and V
 
 Install these before you start:
 
-| Tool | Install |
-|---|---|
-| **Node.js >= 20** | https://nodejs.org/ |
-| **Rust** | https://rustup.rs/ |
-| **Tauri v2 system deps** | https://tauri.app/start/prerequisites/ |
-| **GitHub CLI** (optional, for `npm run init` auto-push) | https://cli.github.com/ |
+| Tool                                                  | Install                                |
+| ----------------------------------------------------- | -------------------------------------- |
+| **Node.js >= 20**                                     | https://nodejs.org/                    |
+| **Rust**                                              | https://rustup.rs/                     |
+| **Tauri v2 system deps**                              | https://tauri.app/start/prerequisites/ |
+| **GitHub CLI** (optional, for auto-push during setup) | https://cli.github.com/                |
 
 On **macOS**, Xcode Command Line Tools are also required (`xcode-select --install`).
 
@@ -32,43 +32,35 @@ sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev 
 ## Quick Start
 
 ```sh
-# 1. Clone the template
-git clone https://github.com/skymen/tauri-vue-template.git my-app
-cd my-app
-
-# 2. Install dependencies
-npm install
-
-# 3. Run the interactive setup
-npm run init
+npx create skymen-app my-app
 ```
 
-`npm run init` walks you through a form that asks for your project name, description, GitHub repo, etc. It then:
+This single command clones the template, installs dependencies, and walks you through an interactive setup that:
 
-1. Writes your answers to `template.config.json`
+1. Fills `template.config.json` with your project name, description, GitHub repo, etc.
 2. Applies the config to all project files automatically
 3. Offers to generate a Tauri updater keypair
 4. Initializes a fresh git repo with an initial commit
 5. Offers to create and push to a GitHub repo (requires `gh` CLI)
 
-After init, start developing:
+After setup, start developing:
 
 ```sh
+cd my-app
 npm run tauri dev
 ```
 
 ## Scripts
 
-| Command | What it does |
-|---|---|
-| `npm run init` | Interactive project setup (run once after cloning) |
-| `npm run config` | Apply `template.config.json` to all project files |
-| `npm run icons` | Generate all app icons from your source SVG/PNG |
+| Command                                           | What it does                                          |
+| ------------------------------------------------- | ----------------------------------------------------- |
+| `npm run config`                                  | Apply `template.config.json` to all project files     |
+| `npm run icons`                                   | Generate all app icons from your source SVG/PNG       |
 | `npm run publish -- <patch\|minor\|major\|x.y.z>` | Bump version, commit, tag, push (triggers CI release) |
-| `npm run dev` | Start Vite dev server (auto-applies config first) |
-| `npm run build` | Production build (auto-applies config first) |
-| `npm run tauri dev` | Start Tauri + Vite in development mode |
-| `npm run tauri build` | Build the final desktop app |
+| `npm run dev`                                     | Start Vite dev server (auto-applies config first)     |
+| `npm run build`                                   | Production build (auto-applies config first)          |
+| `npm run tauri dev`                               | Start Tauri + Vite in development mode                |
+| `npm run tauri build`                             | Build the final desktop app                           |
 
 ## Project Structure
 
@@ -76,7 +68,6 @@ npm run tauri dev
 ├── template.config.json          # YOUR config — single source of truth
 ├── assets/                       # Place your source icon.svg / icon.png here
 ├── scripts/
-│   ├── init.js                   # Interactive project setup
 │   ├── config.js                 # Applies config to all project files
 │   ├── generate-icons.js         # SVG/PNG → all Tauri icon sizes
 │   └── publish.js                # Version bump + tag + push
@@ -105,13 +96,13 @@ npm run tauri dev
 
 `template.config.json` is the single source of truth for your project identity. When you run `npm run config` (or it runs automatically via `npm run dev` / `npm run build`), it patches these files:
 
-| File | Fields updated |
-|---|---|
-| `package.json` | `name`, `version`, `description`, `author`, `license` |
-| `src-tauri/Cargo.toml` | `name`, `version`, `description`, `authors`, `license`, `repository` |
-| `src-tauri/tauri.conf.json` | `productName`, `version`, `identifier`, window title/size, updater endpoint + pubkey |
-| `index.html` | `<title>` tag |
-| `.github/workflows/tauri-release.yml` | Cleans any stale hardcoded repo URLs |
+| File                                  | Fields updated                                                                       |
+| ------------------------------------- | ------------------------------------------------------------------------------------ |
+| `package.json`                        | `name`, `version`, `description`, `author`, `license`                                |
+| `src-tauri/Cargo.toml`                | `name`, `version`, `description`, `authors`, `license`, `repository`                 |
+| `src-tauri/tauri.conf.json`           | `productName`, `version`, `identifier`, window title/size, updater endpoint + pubkey |
+| `index.html`                          | `<title>` tag                                                                        |
+| `.github/workflows/tauri-release.yml` | Cleans any stale hardcoded repo URLs                                                 |
 
 During `npm run dev`, Vite watches `template.config.json` for changes and re-applies the config automatically.
 
@@ -121,30 +112,30 @@ You should **only edit project identity in `template.config.json`** — the othe
 
 ```jsonc
 {
-  "name": "my-app",               // package name (kebab-case)
-  "productName": "My App",        // display name shown in OS
-  "version": "0.0.0",             // semver — managed by npm run publish
-  "identifier": "com.you.myapp",  // bundle identifier (reverse-DNS)
+  "name": "my-app", // package name (kebab-case)
+  "productName": "My App", // display name shown in OS
+  "version": "0.0.0", // semver — managed by npm run publish
+  "identifier": "com.you.myapp", // bundle identifier (reverse-DNS)
   "description": "A Tauri App",
   "author": "Your Name",
   "license": "MIT",
   "github": {
-    "owner": "your-username",     // GitHub username or org
-    "repo": "my-app"              // GitHub repo name
+    "owner": "your-username", // GitHub username or org
+    "repo": "my-app", // GitHub repo name
   },
   "window": {
-    "title": "My App",            // main window title
+    "title": "My App", // main window title
     "width": 800,
-    "height": 600
+    "height": 600,
   },
   "updater": {
-    "active": false,              // set to true after generating keys
-    "pubkey": ""                  // public key from tauri signer
+    "active": false, // set to true after generating keys
+    "pubkey": "", // public key from tauri signer
   },
   "icons": {
-    "svg": "assets/icon.svg",     // preferred source (rendered to PNG)
-    "png": "assets/icon.png"      // fallback (should be >= 1024x1024)
-  }
+    "svg": "assets/icon.svg", // preferred source (rendered to PNG)
+    "png": "assets/icon.png", // fallback (should be >= 1024x1024)
+  },
 }
 ```
 
@@ -173,6 +164,7 @@ npm run publish -- 2.5.0          # set an exact version
 ```
 
 This will:
+
 1. Bump the version in `template.config.json`
 2. Propagate it to `package.json`, `Cargo.toml`, and `tauri.conf.json`
 3. Commit the changes
@@ -183,11 +175,12 @@ The GitHub Actions workflow then builds for macOS, Linux, and Windows, creates a
 
 ## Manual Setup Steps
 
-Most setup is handled by `npm run init`, but a few things still need to be done by hand:
+Most setup is handled by `npx create skymen-app`, but a few things still need to be done by hand:
 
 ### 1. Add the updater private key to GitHub (if using auto-updater)
 
-During `npm run init`, if you chose to generate an updater keypair, the script will:
+During setup, if you chose to generate an updater keypair, the script will:
+
 - Save the public key to `template.config.json` automatically
 - Print the private key to the console and copy it to your clipboard
 - Offer to open your GitHub repo's secrets page in your browser
@@ -201,6 +194,7 @@ npx tauri signer generate -w .tauri-updater.key
 ```
 
 Then:
+
 - Copy the **public key** from the output into `template.config.json` under `updater.pubkey`
 - Set `updater.active` to `true`
 - Run `npm run config` to apply the changes
@@ -221,6 +215,7 @@ The template ships with Tauri's default placeholder icons. Replace them:
 ### 3. Build your app
 
 The template gives you an empty canvas:
+
 - `src/views/Home.vue` — empty, this is where your app starts
 - `src/store/store.js` — empty Pinia store skeleton
 - `src-tauri/src/main.rs` — thin entry point, actual app logic is in `lib.rs`
