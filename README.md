@@ -1,10 +1,10 @@
 # Tauri + Vue 3 Template
 
-A reusable template for building cross-platform desktop apps with Tauri v1 and Vue 3. Comes with scaffolding scripts so you never have to manually hunt down placeholder values across files again.
+A reusable template for building cross-platform desktop apps with Tauri v2 and Vue 3. Comes with scaffolding scripts so you never have to manually hunt down placeholder values across files again.
 
 ## Tech Stack
 
-- [Tauri v1](https://tauri.app/) — desktop app framework (Rust backend)
+- [Tauri v2](https://tauri.app/) — desktop app framework (Rust backend)
 - [Vue 3](https://vuejs.org/) — frontend framework (Composition API, `<script setup>`)
 - [Vite](https://vitejs.dev/) — build tool
 - [Pinia](https://pinia.vuejs.org/) — state management
@@ -18,7 +18,7 @@ Install these before you start:
 |---|---|
 | **Node.js >= 20** | https://nodejs.org/ |
 | **Rust** | https://rustup.rs/ |
-| **Tauri v1 system deps** | https://tauri.app/v1/guides/getting-started/prerequisites |
+| **Tauri v2 system deps** | https://tauri.app/start/prerequisites/ |
 | **GitHub CLI** (optional, for `npm run init` auto-push) | https://cli.github.com/ |
 
 On **macOS**, Xcode Command Line Tools are also required (`xcode-select --install`).
@@ -26,7 +26,7 @@ On **macOS**, Xcode Command Line Tools are also required (`xcode-select --instal
 On **Ubuntu/Debian**, the system dependencies are:
 
 ```sh
-sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf
+sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
 ```
 
 ## Quick Start
@@ -89,7 +89,10 @@ npm run tauri dev
 ├── src-tauri/                    # Tauri / Rust backend
 │   ├── tauri.conf.json           # Tauri config (managed by scripts)
 │   ├── Cargo.toml                # Rust dependencies (managed by scripts)
-│   ├── src/main.rs               # Rust entry point with sample command
+│   ├── src/main.rs               # Rust entry point (thin wrapper)
+│   ├── src/lib.rs                # Tauri v2 app builder with plugin registration
+│   ├── capabilities/             # Tauri v2 permission capabilities
+│   │   └── default.json          # Default permissions (core, shell, updater)
 │   └── icons/                    # Generated icons (managed by scripts)
 ├── .github/workflows/
 │   └── tauri-release.yml         # CI: builds + releases on version tags
@@ -189,7 +192,7 @@ During `npm run init`, if you chose to generate an updater keypair, the script w
 - Print the private key to the console and copy it to your clipboard
 - Offer to open your GitHub repo's secrets page in your browser
 
-All you need to do is paste the key into a new secret named **`TAURI_PRIVATE_KEY`**.
+All you need to do is paste the key into a new secret named **`TAURI_SIGNING_PRIVATE_KEY`**.
 
 If you skipped this during init or need to redo it:
 
@@ -201,7 +204,7 @@ Then:
 - Copy the **public key** from the output into `template.config.json` under `updater.pubkey`
 - Set `updater.active` to `true`
 - Run `npm run config` to apply the changes
-- Add the **private key** (contents of `.tauri-updater.key`) as a GitHub repository secret named `TAURI_PRIVATE_KEY` at:
+- Add the **private key** (contents of `.tauri-updater.key`) as a GitHub repository secret named `TAURI_SIGNING_PRIVATE_KEY` at:
 
   `https://github.com/<owner>/<repo>/settings/secrets/actions/new`
 
@@ -220,7 +223,8 @@ The template ships with Tauri's default placeholder icons. Replace them:
 The template gives you an empty canvas:
 - `src/views/Home.vue` — empty, this is where your app starts
 - `src/store/store.js` — empty Pinia store skeleton
-- `src-tauri/src/main.rs` — has a sample `greet` Tauri command you can replace
+- `src-tauri/src/main.rs` — thin entry point, actual app logic is in `lib.rs`
+- `src-tauri/src/lib.rs` — Tauri v2 builder with plugin registration and a sample `greet` command
 
 ## Recommended IDE Setup
 

@@ -204,7 +204,7 @@ async function generateUpdaterKey(config) {
       const privateKey = readFileSync(keyPath, "utf-8").trim();
 
       console.log(
-        "\nYou need to add the private key as a TAURI_PRIVATE_KEY secret in your GitHub repo."
+        "\nYou need to add the private key as a TAURI_SIGNING_PRIVATE_KEY secret in your GitHub repo."
       );
       console.log("Private key:\n");
       console.log(privateKey);
@@ -231,7 +231,7 @@ async function generateUpdaterKey(config) {
         } else {
           console.log(`\nAdd the secret manually at:\n  ${secretsUrl}`);
         }
-        console.log('\nName the secret: TAURI_PRIVATE_KEY');
+        console.log('\nName the secret: TAURI_SIGNING_PRIVATE_KEY');
       } else {
         console.log(
           "\nNo GitHub owner/repo configured — add the secret manually later at:"
@@ -239,7 +239,7 @@ async function generateUpdaterKey(config) {
         console.log(
           "  https://github.com/<owner>/<repo>/settings/secrets/actions/new"
         );
-        console.log("  Name: TAURI_PRIVATE_KEY");
+        console.log("  Name: TAURI_SIGNING_PRIVATE_KEY");
       }
     } else {
       console.log("Could not extract pubkey from output. You can set it manually in template.config.json.");

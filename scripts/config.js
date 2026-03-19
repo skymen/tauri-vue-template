@@ -107,29 +107,31 @@ export function runConfig() {
   patchToml("src-tauri/Cargo.toml", cargoPatches);
   console.log("  [ok] src-tauri/Cargo.toml");
 
-  // -- src-tauri/tauri.conf.json -------------------------------------------
+  // -- src-tauri/tauri.conf.json (Tauri v2 format) -------------------------
   const tauri = readJSON("src-tauri/tauri.conf.json");
-  tauri.package.productName = cfg.productName || cfg.name;
-  tauri.package.version = cfg.version;
-  tauri.tauri.bundle.identifier = cfg.identifier || "com.tauri.dev";
 
-  // Window
-  if (cfg.window) {
-    const win = tauri.tauri.windows[0];
+  // Top-level fields
+  tauri.productName = cfg.productName || cfg.name;
+  tauri.version = cfg.version;
+  tauri.identifier = cfg.identifier || "com.tauri.dev";
+
+  // Window (under app.windows[])
+  if (cfg.window && tauri.app?.windows?.[0]) {
+    const win = tauri.app.windows[0];
     if (cfg.window.title) win.title = cfg.window.title;
     if (cfg.window.width) win.width = cfg.window.width;
     if (cfg.window.height) win.height = cfg.window.height;
   }
 
-  // Updater
-  if (cfg.updater) {
-    tauri.tauri.updater.active = cfg.updater.active ?? false;
-    if (cfg.updater.pubkey) {
-      tauri.tauri.updater.pubkey = cfg.updater.pubkey;
-    }
+  // Updater plugin (under plugins.updater)
+  if (!tauri.plugins) tauri.plugins = {};
+  if (!tauri.plugins.updater) tauri.plugins.updater = {};
+
+  if (cfg.updater?.pubkey) {
+    tauri.plugins.updater.pubkey = cfg.updater.pubkey;
   }
   if (cfg.github?.owner && cfg.github?.repo) {
-    tauri.tauri.updater.endpoints = [
+    tauri.plugins.updater.endpoints = [
       `https://raw.githubusercontent.com/${cfg.github.owner}/${cfg.github.repo}/update/latest.json`,
     ];
   }
